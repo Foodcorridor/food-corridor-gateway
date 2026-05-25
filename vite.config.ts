@@ -10,7 +10,7 @@ import { nitro } from "nitro/vite";
 // Vercel needs Nitro's Vercel output; Lovable hosting keeps the Cloudflare worker output.
 const isVercel = process.env.VERCEL === "1";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   server: { host: "::", port: 8080 },
   define: Object.fromEntries(
     Object.entries(process.env)
@@ -31,7 +31,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
-    !isVercel && cloudflare({ viteEnvironment: { name: "ssr" } }),
+    !isVercel && command === "build" && cloudflare({ viteEnvironment: { name: "ssr" } }),
     tanstackStart({
       server: { entry: "server" },
       importProtection: {
@@ -45,4 +45,4 @@ export default defineConfig({
     isVercel && nitro({ preset: "vercel" }),
     viteReact(),
   ].filter(Boolean),
-});
+}));
